@@ -1,2 +1,11 @@
 *.pdsbak
 *.workspace
+Makefile
+**/build
+**/dist
+**/nbproject/*.mk
+**/nbproject/*.bash
+**/nbproject/*.properties
+**/nbproject/private
+.DS_Store
+.~lock*
