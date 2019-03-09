@@ -17,3 +17,9 @@ Limits are:
 
 
 ![Radio Control to DC motor controller](documentation/rc-to-dc-motor-controller-concept-v1.jpg)
+
+# Notes to the user
+
+Here are some notes to the user:
+
+  * As in any RC system, always switch on the emitter first. Even if best brands pay real attention to what the receiver does when it looses the signal, it may not be the behavior you expect. For example, most receivers place all channels to neutral. However, neutral position of the throttle channel in a plane or helicopter RC system is not at its center, but at its minimum. Should you connect a (C) module to this channel, it will sent the DC motor full speed backwards.
