@@ -43,6 +43,21 @@ void initializeHardware() {
     PIE4bits.CCP5IE = 1;                      // Enable interruptions.
     IPR4bits.CCP5IP = 0;                      // Low priority.
     
+    // Configure timer 2 for a PWM frequency of 64*10^6 / (4 * 255) = 64kHz
+    T2CONbits.TMR2ON = 1;     // Enable timer 2.
+    T2CONbits.T2CKPS = 0;     // No clock pre-scaling (so 1:1).
+    PR2 = 255;                // Count up to 255.
+    
+    // Configure CCP1 as full-bridge PWM generator
+    TRISCbits.RC2 = 0;        // RC2/P1A as output.
+    TRISBbits.RB2 = 0;        // RB2/P1B as output.
+    TRISBbits.RB1 = 0;        // RB1/P1C as output.
+    TRISBbits.RB4 = 0;        // RB4/P1D as output.
+    CCP1CONbits.CCP1M = 12;   // P1A, P1B, P1C, P1D with positive logic.
+    CCPTMRS0bits.C1TSEL = 0;  // CCP1 uses timer 2.
+    CCPR1L = 0;               // Start by duty cycle of 0%
+    CCP1CONbits.P1M = POSITION_POSITIVE;
+    
     // Enable interruptions:
     RCONbits.IPEN = 1;     // Let's have high / low priority interruptions.
     INTCONbits.GIEH = 1;   // Enable interrupts.
@@ -63,6 +78,8 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
             case CAPTURE_FALLING_EDGE:
                 CCP5CONbits.CCP5M = CAPTURE_RAISING_EDGE;
                 captureFallingEdge(5, CCPR5, &capturedPosition);
+                CCPR1L = capturedPosition.position;
+                CCP1CONbits.P1M = capturedPosition.sign;
                 break;
         }
     }
