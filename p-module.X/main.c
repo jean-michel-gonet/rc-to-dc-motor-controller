@@ -13,7 +13,7 @@
 #pragma config WDTEN = OFF     // Watchdog disabled.
 #pragma config LVP = OFF       // Single Supply Enable bits off.
 
-#define CONVERSION_K 9646;
+#define CONVERSION_K 10400;
 
 typedef struct {
     unsigned char lowerTwoBits : 2;
@@ -62,13 +62,14 @@ void initializeHardware() {
     T2CONbits.T2CKPS = 0;     // No clock pre-scaling (so 1:1).
     PR2 = 64;                 // Count up to 64.
     
-    // Configure CCP2 as half-bridge PWM generator
-    TRISBbits.RB3 = 0;        // RC3/P2A as output.
-    TRISBbits.RB5 = 0;        // RB2/P2B as output.
-    CCP2CONbits.P2M = 2;      // Half-bridge controller.
-    CCP2CONbits.CCP2M = 12;   // P2A & P2B use positive logic.
-    CCPTMRS0bits.C2TSEL = 0;  // CCP2 uses timer 2.
-    CCPR2L = 0;               // Start by duty cycle of 0%
+    // Configure CCP1 as half-bridge PWM generator
+    TRISBbits.RB2 = 0;        // RB2/P1B as output.
+    TRISCbits.RC2 = 0;        // RC2/P2B as output.
+    CCP1CONbits.P1M = 2;      // Half-bridge controller.
+    CCP1CONbits.CCP1M = 12;   // P1A & P1B use positive logic.
+    CCPTMRS0bits.C1TSEL = 0;  // CCP2 uses timer 2.
+    PWM1CONbits.P1DC = 1;     // Have a small dead time.
+    CCPR1L = 0;               // Start by duty cycle of 0%
 
     // Enable interruptions:
     RCONbits.IPEN = 1;     // Let's have high / low priority interruptions.
@@ -83,8 +84,8 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
     if (PIR1bits.ADIF) {
         PIR1bits.ADIF = 0;
         dutyCycle = predictDutyCycle(ADRESH);
-        CCPR2L = dutyCycle.pr.higherSixBits;
-        CCP2CONbits.DC2B = dutyCycle.pr.lowerTwoBits;
+        CCPR1L = dutyCycle.pr.higherSixBits;
+        CCP1CONbits.DC1B = dutyCycle.pr.lowerTwoBits;
         ADCON0bits.GO = 1;
     }
 }
@@ -103,19 +104,19 @@ void can_calculate_duty_cycle() {
     DutyCycle dutyCycle;
     
     dutyCycle = predictDutyCycle(91);
-    assertEquals("PDC001a", dutyCycle.value, 106);
-    assertEquals("PDC001b", dutyCycle.pr.higherSixBits, 26);
+    assertEquals("PDC001a", dutyCycle.value, 114);
+    assertEquals("PDC001b", dutyCycle.pr.higherSixBits, 28);
     assertEquals("PDC001c", dutyCycle.pr.lowerTwoBits, 2);
 
     dutyCycle = predictDutyCycle(53);
-    assertEquals("PDC002a", dutyCycle.value, 182);
-    assertEquals("PDC002b", dutyCycle.pr.higherSixBits, 45);
-    assertEquals("PDC002c", dutyCycle.pr.lowerTwoBits, 2);
+    assertEquals("PDC002a", dutyCycle.value, 196);
+    assertEquals("PDC002b", dutyCycle.pr.higherSixBits, 49);
+    assertEquals("PDC002c", dutyCycle.pr.lowerTwoBits, 0);
 
     dutyCycle = predictDutyCycle(113);
-    assertEquals("PDC003a", dutyCycle.value, 85);
-    assertEquals("PDC003b", dutyCycle.pr.higherSixBits, 21);
-    assertEquals("PDC003c", dutyCycle.pr.lowerTwoBits, 1);
+    assertEquals("PDC003a", dutyCycle.value, 92);
+    assertEquals("PDC003b", dutyCycle.pr.higherSixBits, 23);
+    assertEquals("PDC003c", dutyCycle.pr.lowerTwoBits, 0);
 }
 
 void main(void) {
