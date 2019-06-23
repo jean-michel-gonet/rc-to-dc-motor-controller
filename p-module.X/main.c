@@ -13,7 +13,9 @@
 #pragma config WDTEN = OFF     // Watchdog disabled.
 #pragma config LVP = OFF       // Single Supply Enable bits off.
 
-#define CONVERSION_K 10400;
+#define CONVERSION_K 10400
+#define DEAD_TIME 8
+#define HISTERESIS 15
 
 typedef struct {
     unsigned char lowerTwoBits : 2;
@@ -25,14 +27,22 @@ typedef union {
     unsigned char value;
 } DutyCycle;
 
+unsigned char maxDuty
+
 DutyCycle predictDutyCycle(unsigned char ad) {
     DutyCycle dutyCycle;
     unsigned int value = CONVERSION_K;
     value /= ad;
+
+    if (value > 60) {
+        value = 57;
+    }
     
     dutyCycle.value = value;
     return dutyCycle;
 }
+
+
 
 #ifndef TEST
 void initializeHardware() {
@@ -63,30 +73,73 @@ void initializeHardware() {
     PR2 = 64;                 // Count up to 64.
     
     // Configure CCP1 as half-bridge PWM generator
-    TRISBbits.RB2 = 0;        // RB2/P1B as output.
-    TRISCbits.RC2 = 0;        // RC2/P2B as output.
-    CCP1CONbits.P1M = 2;      // Half-bridge controller.
-    CCP1CONbits.CCP1M = 12;   // P1A & P1B use positive logic.
-    CCPTMRS0bits.C1TSEL = 0;  // CCP2 uses timer 2.
-    PWM1CONbits.P1DC = 1;     // Have a small dead time.
-    CCPR1L = 0;               // Start by duty cycle of 0%
+    TRISBbits.RB2 = 0;            // RB2/P1B as output.
+    TRISCbits.RC2 = 0;            // RC2/P2B as output.
+    CCP1CONbits.P1M = 2;          // Half-bridge controller.
+    CCP1CONbits.CCP1M = 12;       // P1A & P1B use positive logic.
+    CCPTMRS0bits.C1TSEL = 0;      // CCP2 uses timer 2.
+    PWM1CONbits.P1DC = DEAD_TIME; // Have a small dead time.
+    CCPR1L = 0;                   // Start by duty cycle of 0%
 
+    // Enable timer 3 to have 2kHz interruptions
+    T1CONbits.T1CKPS = 0;
+    T1CONbits.TMR1ON = 1;
+    PIE1bits.TMR1IE = 1;
+    IPR1bits.TMR1IP = 0;
+    
     // Enable interruptions:
     RCONbits.IPEN = 1;     // Let's have high / low priority interruptions.
     INTCONbits.GIEH = 1;   // Enable interrupts.
     INTCONbits.GIEL = 1;   // Enable low priority interrupts.
 }
 
+typedef enum {
+    MEASURE_VIN,
+    MEASURE_VOUT
+} MeasureInputEnum;
+
 void __interrupt(low_priority) lowPriorityInterrupts(void) {
     DutyCycle dutyCycle;
-    
+    static unsigned char lastVo;
+    static MeasureInputEnum  measureInput = MEASURE_VIN;
+
+    // Time to launch an AD conversion:
+    if (PIR1bits.TMR1IF) {
+        TMR1H = 0xE0;
+        TMR1L = 0xBF;
+        PIR1bits.TMR1IF = 0;
+        
+        switch (measureInput) {
+            case MEASURE_VIN:
+                ADCON0bits.CHS = 17;
+                break;
+
+            case MEASURE_VOUT:
+            default:
+                ADCON0bits.CHS = 16;
+                break;
+        }
+
+        ADCON0bits.GO = 1;
+    }
+
     // Just captured an AD conversion:
     if (PIR1bits.ADIF) {
         PIR1bits.ADIF = 0;
-        dutyCycle = predictDutyCycle(ADRESH);
-        CCPR1L = dutyCycle.pr.higherSixBits;
-        CCP1CONbits.DC1B = dutyCycle.pr.lowerTwoBits;
-        ADCON0bits.GO = 1;
+        switch (measureInput) {
+            case MEASURE_VIN:
+                dutyCycle = predictDutyCycle(ADRESH);
+                CCPR1L = DEAD_TIME + dutyCycle.pr.higherSixBits;
+                CCP1CONbits.DC1B = dutyCycle.pr.lowerTwoBits;
+                measureInput = MEASURE_VOUT;
+                break;
+
+            case MEASURE_VOUT:
+            default:
+                lastVo = ADRESH;
+                measureInput = MEASURE_VIN;
+                break;
+        }
     }
 }
 
