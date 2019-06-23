@@ -1,5 +1,5 @@
 #include "test.h"
-#include "file.h"
+#include "queue.h"
 
 /**
  * If there is room in the queue, queues one char.
