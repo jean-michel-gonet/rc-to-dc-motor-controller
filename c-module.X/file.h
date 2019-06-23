@@ -20,14 +20,14 @@ typedef struct {
     char filePleine;
 } File;
 
-void fileEnfile(File *file, char c);
-char fileDefile(File *file);
-char fileEstVide(File *file);
-char fileEstPleine(File *file);
-void fileReinitialise(File *file);
+void enqueue(File *file, char c);
+char dequeue(File *file);
+char queueIsEmpty(File *file);
+char queueIsFull(File *file);
+void queueReset(File *file);
 
 #ifdef TEST
-void test_file();
+void test_queue();
 #endif
 
 #endif

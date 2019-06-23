@@ -2,10 +2,10 @@
 #include "file.h"
 
 /**
- * Si il y a de la place dans la file, enfile un caractère.
- * @param c Le caractère.
+ * If there is room in the queue, queues one char.
+ * @param c The char.
  */
-void fileEnfile(File *file, char c) {
+void enqueue(File *file, char c) {
     file->fileVide = 0;
     if (!file->filePleine) {
         file->file[file->fileEntree++] = c;
@@ -19,10 +19,10 @@ void fileEnfile(File *file, char c) {
 }
 
 /**
- * Si la file n'est pas vide, défile un caractère.
- * @return Le caractère défilé, ou 0 si la file est vide.
+ * If queue is not empty, returns one char from queue.
+ * @return The char removed from queue, or 0 if queue is empty.
  */
-char fileDefile(File *file) {
+char dequeue(File *file) {
     char c;
     file->filePleine = 0;
     if (!file->fileVide) {
@@ -39,23 +39,23 @@ char fileDefile(File *file) {
 }
 
 /**
- * Indique si la file est vide.
+ * Flags if queue is empty.
  */
-char fileEstVide(File *file) {
+char queueIsEmpty(File *file) {
     return file->fileVide;
 }
 
 /**
- * Indique si la file est pleine.
+ * Flags if queue is full.
  */
-char fileEstPleine(File *file) {
+char queueIsFull(File *file) {
     return file->filePleine;
 }
 
 /**
- * Vide et réinitialise la file.
+ * Clears and resets the queue.
  */
-void fileReinitialise(File *file) {
+void queueReset(File *file) {
     file->fileEntree = 0;
     file->fileSortie = 0;
     file->fileVide = 255;
@@ -64,64 +64,64 @@ void fileReinitialise(File *file) {
 }
 
 #ifdef TEST
-void testEnfileEtDefile() {
+void test_can_enqueue_and_dequeue() {
     File file;
-    fileReinitialise(&file);
+    queueReset(&file);
     
-    assertEquals("FIL01", fileEstVide(&file), 255);    
-    assertEquals("FIL02", fileDefile(&file), 0);
-    assertEquals("FIL03", fileDefile(&file), 0);
+    assertEquals("FIL01", queueIsEmpty(&file), 255);    
+    assertEquals("FIL02", dequeue(&file), 0);
+    assertEquals("FIL03", dequeue(&file), 0);
 
-    fileEnfile(&file, 10);
-    fileEnfile(&file, 20);
+    enqueue(&file, 10);
+    enqueue(&file, 20);
 
-    assertEquals("FIL04", fileEstVide(&file), 0);
-    assertEquals("FIL05", fileDefile(&file), 10);
-    assertEquals("FIL06", fileDefile(&file), 20);
-    assertEquals("FIL07", fileEstVide(&file), 255);
-    assertEquals("FIL08", fileDefile(&file), 0);
+    assertEquals("FIL04", queueIsEmpty(&file), 0);
+    assertEquals("FIL05", dequeue(&file), 10);
+    assertEquals("FIL06", dequeue(&file), 20);
+    assertEquals("FIL07", queueIsEmpty(&file), 255);
+    assertEquals("FIL08", dequeue(&file), 0);
 }
 
-void testEnfileEtDefileBeaucoupDeCaracteres() {
+void test_can_enqueue_and_dequeue_a_lot() {
     File file;
     int n = 0;
     char c = 0;
     
-    fileReinitialise(&file);
+    queueReset(&file);
 
     for (n = 0; n < FILE_TAILLE * 4; n++) {
-        fileEnfile(&file, c);
-        if (assertEquals("FBC001", fileDefile(&file), c)) {
+        enqueue(&file, c);
+        if (assertEquals("FBC001", dequeue(&file), c)) {
             return;
         }
         c++;
     }
 }
 
-void testDebordePuisRecupereLesCaracteres() {
+void test_can_retrieve_chars_even_after_overflow() {
     File file;
     char c = 1;
     
-    fileReinitialise(&file);
-    while(!fileEstPleine(&file)) {
-        fileEnfile(&file, c++);
+    queueReset(&file);
+    while(!queueIsFull(&file)) {
+        enqueue(&file, c++);
     }
 
-    assertEquals("FDB001", fileDefile(&file), 1);
-    assertEquals("FDB002", fileDefile(&file), 2);
+    assertEquals("FDB001", dequeue(&file), 1);
+    assertEquals("FDB002", dequeue(&file), 2);
     
-    while(!fileEstVide(&file)) {
-        c = fileDefile(&file);
+    while(!queueIsEmpty(&file)) {
+        c = dequeue(&file);
     }
-    fileEnfile(&file, 1);      // Ces caractères sont ignorés...
-    fileEnfile(&file, 1);      // ... car la file est pleine.
+    enqueue(&file, 1);      // Ces caractères sont ignorés...
+    enqueue(&file, 1);      // ... car la file est pleine.
 
     assertEquals("FDB003", c, FILE_TAILLE);
 }
 
-void test_file() {
-    testEnfileEtDefile();
-    testEnfileEtDefileBeaucoupDeCaracteres();
-    testDebordePuisRecupereLesCaracteres();
+void test_queue() {
+    test_can_enqueue_and_dequeue();
+    test_can_enqueue_and_dequeue_a_lot();
+    test_can_retrieve_chars_even_after_overflow();
 }
 #endif

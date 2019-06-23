@@ -97,7 +97,7 @@ void main(void) {
 void main() {
     startTests();
     test_capture();
-    test_file();
+    test_queue();
     finishTests();
     while(1);
 }
