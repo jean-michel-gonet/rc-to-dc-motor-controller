@@ -1,5 +1,6 @@
 #include "test.h"
 #include "capture.h"
+#include "file.h"
 
 #include <xc.h>
 
@@ -96,6 +97,7 @@ void main(void) {
 void main() {
     startTests();
     test_capture();
+    test_file();
     finishTests();
     while(1);
 }
