@@ -1,30 +1,30 @@
-#ifndef __FILE_H
-#define	__FILE_H
+#ifndef __QUEUE_H
+#define	__QUEUE_H
 
-#define FILE_TAILLE 32
+#define QUEUE_SIZE 32
 
 typedef struct {
-    /** Espace de mémoire pour stocker la file. */
-    char file[FILE_TAILLE];
+    /** Memory buffer to store the queue. */
+    char queue[QUEUE_SIZE];
 
-    /** Pointeur d'entrée de la file. */
-    unsigned char fileEntree;
+    /** Points to the first free position in queue to put a new char in. */
+    unsigned char queueIn;
 
-    /** Pointeur de sortie de la file. */
-    unsigned char fileSortie;
+    /** Points to the next char to dequeue. */
+    unsigned char queueOut;
 
-    /** Indique si la file est vide. */
-    char fileVide;
+    /** Flag if queue is empty. */
+    char queueEmpty;
 
-    /** Indique si la file est pleine. */
-    char filePleine;
-} File;
+    /** Flag if queue is full. */
+    char queueFull;
+} Queue;
 
-void enqueue(File *file, char c);
-char dequeue(File *file);
-char queueIsEmpty(File *file);
-char queueIsFull(File *file);
-void queueReset(File *file);
+void enqueue(Queue *file, char c);
+char dequeue(Queue *file);
+char queueIsEmpty(Queue *file);
+char queueIsFull(Queue *file);
+void queueReset(Queue *file);
 
 #ifdef TEST
 void test_queue();

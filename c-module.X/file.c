@@ -5,15 +5,15 @@
  * If there is room in the queue, queues one char.
  * @param c The char.
  */
-void enqueue(File *file, char c) {
-    file->fileVide = 0;
-    if (!file->filePleine) {
-        file->file[file->fileEntree++] = c;
-        if (file->fileEntree >= FILE_TAILLE) {
-            file->fileEntree = 0;
+void enqueue(Queue *file, char c) {
+    file->queueEmpty = 0;
+    if (!file->queueFull) {
+        file->queue[file->queueIn++] = c;
+        if (file->queueIn >= QUEUE_SIZE) {
+            file->queueIn = 0;
         }
-        if (file->fileEntree == file->fileSortie) {
-            file->filePleine = 255;
+        if (file->queueIn == file->queueOut) {
+            file->queueFull = 255;
         }
     }
 }
@@ -22,16 +22,16 @@ void enqueue(File *file, char c) {
  * If queue is not empty, returns one char from queue.
  * @return The char removed from queue, or 0 if queue is empty.
  */
-char dequeue(File *file) {
+char dequeue(Queue *file) {
     char c;
-    file->filePleine = 0;
-    if (!file->fileVide) {
-        c = file->file[file->fileSortie++];
-        if (file->fileSortie >= FILE_TAILLE) {
-            file->fileSortie = 0;
+    file->queueFull = 0;
+    if (!file->queueEmpty) {
+        c = file->queue[file->queueOut++];
+        if (file->queueOut >= QUEUE_SIZE) {
+            file->queueOut = 0;
         }
-        if (file->fileSortie == file->fileEntree) {
-            file->fileVide = 255;
+        if (file->queueOut == file->queueIn) {
+            file->queueEmpty = 255;
         }
         return c;
     }
@@ -41,31 +41,31 @@ char dequeue(File *file) {
 /**
  * Flags if queue is empty.
  */
-char queueIsEmpty(File *file) {
-    return file->fileVide;
+char queueIsEmpty(Queue *file) {
+    return file->queueEmpty;
 }
 
 /**
  * Flags if queue is full.
  */
-char queueIsFull(File *file) {
-    return file->filePleine;
+char queueIsFull(Queue *file) {
+    return file->queueFull;
 }
 
 /**
  * Clears and resets the queue.
  */
-void queueReset(File *file) {
-    file->fileEntree = 0;
-    file->fileSortie = 0;
-    file->fileVide = 255;
-    file->filePleine = 0;
+void queueReset(Queue *file) {
+    file->queueIn = 0;
+    file->queueOut = 0;
+    file->queueEmpty = 255;
+    file->queueFull = 0;
     
 }
 
 #ifdef TEST
 void test_can_enqueue_and_dequeue() {
-    File file;
+    Queue file;
     queueReset(&file);
     
     assertEquals("FIL01", queueIsEmpty(&file), 255);    
@@ -83,13 +83,13 @@ void test_can_enqueue_and_dequeue() {
 }
 
 void test_can_enqueue_and_dequeue_a_lot() {
-    File file;
+    Queue file;
     int n = 0;
     char c = 0;
     
     queueReset(&file);
 
-    for (n = 0; n < FILE_TAILLE * 4; n++) {
+    for (n = 0; n < QUEUE_SIZE * 4; n++) {
         enqueue(&file, c);
         if (assertEquals("FBC001", dequeue(&file), c)) {
             return;
@@ -99,7 +99,7 @@ void test_can_enqueue_and_dequeue_a_lot() {
 }
 
 void test_can_retrieve_chars_even_after_overflow() {
-    File file;
+    Queue file;
     char c = 1;
     
     queueReset(&file);
@@ -116,7 +116,7 @@ void test_can_retrieve_chars_even_after_overflow() {
     enqueue(&file, 1);      // Ces caractères sont ignorés...
     enqueue(&file, 1);      // ... car la file est pleine.
 
-    assertEquals("FDB003", c, FILE_TAILLE);
+    assertEquals("FDB003", c, QUEUE_SIZE);
 }
 
 void test_queue() {
