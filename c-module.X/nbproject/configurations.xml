@@ -10,6 +10,7 @@
       <itemPath>events.h</itemPath>
       <itemPath>dashboard.h</itemPath>
       <itemPath>power.h</itemPath>
+      <itemPath>signal.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

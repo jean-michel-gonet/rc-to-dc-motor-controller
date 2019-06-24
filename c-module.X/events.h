@@ -21,6 +21,11 @@ typedef enum EVENT_TYPE {
      * Maybe receiver is off, disconnected, or un pause.
      */
     RC_NO_POSITION,
+    
+    /**
+     * Signal some status
+     */
+    SIGNAL,
             
 } EventType;
 
