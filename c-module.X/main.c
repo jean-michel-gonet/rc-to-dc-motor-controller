@@ -75,11 +75,11 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
         switch (CCP5CONbits.CCP5M) {
             case CAPTURE_RAISING_EDGE:
                 CCP5CONbits.CCP5M = CAPTURE_FALLING_EDGE;
-                captureRaisingEdge(5, CCPR5);
+                captureRaisingEdge(CCPR5);
                 break;
             case CAPTURE_FALLING_EDGE:
                 CCP5CONbits.CCP5M = CAPTURE_RAISING_EDGE;
-                captureFallingEdge(5, CCPR5, &capturedPosition);
+                captureFallingEdge(CCPR5, &capturedPosition);
                 CCPR1L = capturedPosition.position;
                 CCP1CONbits.P1M = capturedPosition.sign;
                 break;
