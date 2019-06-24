@@ -7,4 +7,6 @@ typedef enum SIGNAL_TYPE {
     MOVING_NEGATIVE
 } SignalType;
 
+void signal(Event *event);
+
 #endif

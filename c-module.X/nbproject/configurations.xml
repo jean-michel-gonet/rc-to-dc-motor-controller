@@ -25,6 +25,7 @@
       <itemPath>file.c</itemPath>
       <itemPath>events.c</itemPath>
       <itemPath>power.c</itemPath>
+      <itemPath>signal.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

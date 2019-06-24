@@ -62,6 +62,11 @@ void initializeHardware() {
     CCPR1L = 0;               // Start by duty cycle of 0%
     CCP1CONbits.P1M = POSITION_POSITIVE;
     
+    
+    // Configure RC5 and RC6 as digital outputs:
+    TRISCbits.RC5 = 0;
+    TRISCbits.RC6 = 0;
+    
     // Enable interruptions:
     RCONbits.IPEN = 1;     // Let's have high / low priority interruptions.
     INTCONbits.GIEH = 1;   // Enable interrupts.
@@ -96,11 +101,8 @@ void main(void) {
     while(1) {
         event = dequeueEvent();
         if (event != 0) {
-            do {
-                power(event);
-                leds(event);
-                event = dequeueSubsequentEvent();
-            } while (event != 0);
+            power(event);
+            signal(event);
         }
     }
 }
