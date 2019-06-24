@@ -53,7 +53,7 @@ void enqueueEvent(EventType event, unsigned char value);
 /**
  * Dequeues one event.
  */
-Event dequeueEvent();
+Event* dequeueEvent();
 
 /**
  * Indicates if there is any subsequent event waiting in the queue.
@@ -73,6 +73,10 @@ void enqueueSubsequentEvent(EventType event, unsigned char value);
  * A subsequent event is an event that happens as a consequence of the
  * processing of a previous event.
  */
-Event dequeueSubsequentEvent();
+Event* dequeueSubsequentEvent();
+
+#ifdef TEST
+void test_events();
+#endif
 
 #endif

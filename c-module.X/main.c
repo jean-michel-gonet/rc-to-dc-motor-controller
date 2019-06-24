@@ -1,6 +1,7 @@
 #include "test.h"
 #include "capture.h"
 #include "queue.h"
+#include "events.h"
 
 #include <xc.h>
 
@@ -96,9 +97,13 @@ void main(void) {
 #ifdef TEST
 void main() {
     startTests();
+
     test_capture();
     test_queue();
+    test_events();
+
     finishTests();
+
     while(1);
 }
 #endif
