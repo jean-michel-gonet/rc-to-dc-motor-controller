@@ -33,12 +33,6 @@ typedef struct EVENT {
     unsigned char value;
 } Event;
 
-typedef struct DASHBOARD {
-    
-} Dashboard;
-
-Dashboard dashboard;
-
 /**
  * Indicates if there is any event waiting in the queue.
  * @return 0 If there isn't any.

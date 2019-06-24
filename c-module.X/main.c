@@ -2,6 +2,8 @@
 #include "capture.h"
 #include "queue.h"
 #include "events.h"
+#include "dashboard.h"
+#include "power.h"
 
 #include <xc.h>
 
@@ -67,7 +69,6 @@ void initializeHardware() {
 }
 
 void __interrupt(low_priority) lowPriorityInterrupts(void) {
-    CapturedPosition capturedPosition;
     
     // Just captured an edge:
     if (PIR4bits.CCP5IF) {
@@ -79,18 +80,29 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
                 break;
             case CAPTURE_FALLING_EDGE:
                 CCP5CONbits.CCP5M = CAPTURE_RAISING_EDGE;
-                captureFallingEdge(CCPR5, &capturedPosition);
-                CCPR1L = capturedPosition.position;
-                CCP1CONbits.P1M = capturedPosition.sign;
+                captureFallingEdge(CCPR5, &(dashboard.capturedPosition));
+                enqueueEvent(RC_POSITION_CAPTURED, 0);
                 break;
         }
     }
 }
 
 void main(void) {
+    Event* event;
+    
     initializeHardware();
     resetCapture();
-    while(1);
+    
+    while(1) {
+        event = dequeueEvent();
+        if (event != 0) {
+            do {
+                power(event);
+                leds(event);
+                event = dequeueSubsequentEvent();
+            } while (event != 0);
+        }
+    }
 }
 #endif
 
@@ -101,6 +113,7 @@ void main() {
     test_capture();
     test_queue();
     test_events();
+    test_power();
 
     finishTests();
 
