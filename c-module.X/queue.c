@@ -113,8 +113,8 @@ void test_can_retrieve_chars_even_after_overflow() {
     while(!queueIsEmpty(&file)) {
         c = dequeue(&file);
     }
-    enqueue(&file, 1);      // Ces caractères sont ignorés...
-    enqueue(&file, 1);      // ... car la file est pleine.
+    enqueue(&file, 1);      // Those chars are ignored, because
+    enqueue(&file, 1);      // ... queue is full.
 
     assertEquals("FDB003", c, QUEUE_SIZE);
 }
