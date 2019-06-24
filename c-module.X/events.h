@@ -4,7 +4,7 @@
 /**
  * Liste des événements du système.
  */
-typedef enum EVENT {
+typedef enum EVENT_TYPE {
     /** 
      * No event. 
      * Don't use it outside unit testing.
@@ -22,31 +22,57 @@ typedef enum EVENT {
      */
     RC_NO_POSITION,
             
-} Event;
-
+} EventType;
 
 /**
- * Enqueues one event.
+ * Structure containing one event plus
+ * one associated value.
  */
-void enqueueEvent(Event event);
+typedef struct EVENT {
+    EventType event;
+    unsigned char value;
+} Event;
+
+typedef struct DASHBOARD {
+    
+} Dashboard;
+
+Dashboard dashboard;
+
+/**
+ * Indicates if there is any event waiting in the queue.
+ * @return 0 If there isn't any.
+ */
+unsigned char anyEvent();
+
+/**
+ * Enqueues one event with one associate value.
+ */
+void enqueueEvent(EventType event, unsigned char value);
 
 /**
  * Dequeues one event.
  */
-void Event dequeueEvent();
+Event dequeueEvent();
+
+/**
+ * Indicates if there is any subsequent event waiting in the queue.
+ * @return 0 if there isn't any.
+ */
+unsigned char anySubsequentEvent();
 
 /**
  * Enqueues a subsequent event.
  * A subsequent event is an event that happens as a consequence of the
  * processing of a previous event.
  */
-void enqueueSubsequentEvent(Event event);
+void enqueueSubsequentEvent(EventType event, unsigned char value);
 
 /**
  * Dequeues a subsequent event.
  * A subsequent event is an event that happens as a consequence of the
  * processing of a previous event.
  */
-void Event dequeueSubsequentEvent();
+Event dequeueSubsequentEvent();
 
 #endif
