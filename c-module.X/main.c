@@ -60,7 +60,7 @@ void initializeHardware() {
     CCP1CONbits.CCP1M = 12;   // P1A, P1B, P1C, P1D with positive logic.
     CCPTMRS0bits.C1TSEL = 0;  // CCP1 uses timer 2.
     CCPR1L = 0;               // Start by duty cycle of 0%
-    CCP1CONbits.P1M = POSITION_POSITIVE;
+    CCP1CONbits.P1M = POSITION_NEGATIVE;
     
     
     // Configure RC5 and RC6 as digital outputs:
@@ -94,10 +94,13 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
 
 void main(void) {
     Event* event;
-    
+
+    RCONbits.BOR = 1;
+    RCONbits.POR = 1;
+
     initializeHardware();
     resetCapture();
-    
+        
     while(1) {
         event = dequeueEvent();
         if (event != 0) {

@@ -6,7 +6,7 @@
 #include <xc.h>
 
 #define COUNTING_NEUTRAL 100
-#define NEUTRAL_POSITION 5
+#define NEUTRAL_POSITION 10
 
 typedef enum POWER_STATE {
     WAITING_FOR_NEUTRAL,
@@ -32,10 +32,14 @@ void power(Event *event) {
                 case RC_POSITION_CAPTURED:
                     CCPR1L = position;
                     CCP1CONbits.P1M = sign;
-                    if (sign == POSITION_POSITIVE) {
-                        dashboard.signal = MOVING_POSITIVE;
+                    if (position < NEUTRAL_POSITION) {
+                        dashboard.signal = SIGNAL_NEUTRAL;                        
                     } else {
-                        dashboard.signal = MOVING_NEGATIVE;
+                        if (sign == POSITION_POSITIVE) {
+                            dashboard.signal = SIGNAL_MOVING_NEGATIVE;
+                        } else {
+                            dashboard.signal = SIGNAL_MOVING_POSITIVE;
+                        }
                     }
                     break;
 
@@ -52,7 +56,7 @@ void power(Event *event) {
 
         case WAITING_FOR_NEUTRAL:
             CCPR1L = 0;
-            dashboard.signal = NOT_MOVING;
+            dashboard.signal = SIGNAL_WAITING_FOR_NEUTRAL;
             switch (eventType) {
                 case RC_POSITION_CAPTURED:
                     if (position < NEUTRAL_POSITION) {
@@ -94,7 +98,7 @@ void test_power() {
     for (n = 0; n < COUNTING_NEUTRAL; n++) {
         power(&rcPositionCaptured);
     }
-    assertEquals("POWN002a", dashboard.signal, NOT_MOVING);
+    assertEquals("POWN002a", dashboard.signal, SIGNAL_NOT_MOVING);
     assertEquals("POWN002b", CCPR1L, 0);
 
     dashboard.capturedPosition.position = 100;

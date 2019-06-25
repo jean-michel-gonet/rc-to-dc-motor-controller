@@ -2,11 +2,12 @@
 #define SIGNAL__H
 
 typedef enum SIGNAL_TYPE {
-    NOT_MOVING,
-    MOVING_POSITIVE,
-    MOVING_NEGATIVE
+    SIGNAL_WAITING_FOR_NEUTRAL,
+    SIGNAL_NEUTRAL,
+    SIGNAL_MOVING_POSITIVE,
+    SIGNAL_MOVING_NEGATIVE
 } SignalType;
 
-void signal(Event *event);
+void signal();
 
 #endif

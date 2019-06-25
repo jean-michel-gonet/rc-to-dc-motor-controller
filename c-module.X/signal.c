@@ -1,22 +1,31 @@
-#include "events.h"
 #include "dashboard.h"
 #include "signal.h"
 
 #include <xc.h>
 
-void signal(Event *event) {
-    switch (dashboard.signal) {
-        case NOT_MOVING:
-            PORTCbits.RC5 = 1;
-            PORTCbits.RC6 = 1;
+void signal() {
+    SignalType signal = dashboard.signal;
+
+    switch (signal) {
+        case SIGNAL_WAITING_FOR_NEUTRAL:
+            LATCbits.LATC5 = 1;
+            LATCbits.LATC6 = 1;
             break;
-        case MOVING_POSITIVE:
-            PORTCbits.RC5 = 0;
-            PORTCbits.RC6 = 1;
+
+        case SIGNAL_MOVING_POSITIVE:
+            LATCbits.LATC5 = 0;
+            LATCbits.LATC6 = 1;
             break;
-        case MOVING_NEGATIVE:
-            PORTCbits.RC5 = 1;
-            PORTCbits.RC6 = 0;
-            break;  
+
+        case SIGNAL_MOVING_NEGATIVE:
+            LATCbits.LATC5 = 1;
+            LATCbits.LATC6 = 0;
+            break;
+
+        default:
+        case SIGNAL_NEUTRAL:
+            LATCbits.LATC5 = 0;
+            LATCbits.LATC6 = 0;
+            break;
     }
 }
