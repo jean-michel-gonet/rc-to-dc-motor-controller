@@ -36,9 +36,9 @@ void power(Event *event) {
                         dashboard.signal = SIGNAL_NEUTRAL;                        
                     } else {
                         if (sign == POSITION_POSITIVE) {
-                            dashboard.signal = SIGNAL_MOVING_NEGATIVE;
-                        } else {
                             dashboard.signal = SIGNAL_MOVING_POSITIVE;
+                        } else {
+                            dashboard.signal = SIGNAL_MOVING_NEGATIVE;
                         }
                     }
                     break;
@@ -92,18 +92,19 @@ void test_power() {
     for (n = 0; n < COUNTING_NEUTRAL * 2; n++) {
         power(&rcPositionCaptured);
     }
-    assertEquals("POWN001", CCPR1L, 0);
+    assertEquals("POWN001a", CCPR1L, 0);
+    assertEquals("POWN001b", CCPR1L, SIGNAL_WAITING_FOR_NEUTRAL);
 
     dashboard.capturedPosition.position = NEUTRAL_POSITION - 1;
     for (n = 0; n < COUNTING_NEUTRAL; n++) {
         power(&rcPositionCaptured);
     }
-    assertEquals("POWN002a", dashboard.signal, SIGNAL_NOT_MOVING);
+    assertEquals("POWN002a", dashboard.signal, SIGNAL_WAITING_FOR_NEUTRAL);
     assertEquals("POWN002b", CCPR1L, 0);
 
     dashboard.capturedPosition.position = 100;
     power(&rcPositionCaptured);
-    assertEquals("POWN003a", dashboard.signal, MOVING_POSITIVE);
+    assertEquals("POWN003a", dashboard.signal, SIGNAL_MOVING_POSITIVE);
     assertEquals("POWN003b", CCPR1L, 100);    
     
     rcNoPosition.event = RC_NO_POSITION;
@@ -112,7 +113,7 @@ void test_power() {
     
     dashboard.capturedPosition.position = 100;
     power(&rcPositionCaptured);
-    assertEquals("POWN005a", dashboard.signal, NOT_MOVING);
+    assertEquals("POWN005a", dashboard.signal, SIGNAL_WAITING_FOR_NEUTRAL);
     assertEquals("POWN005b", CCPR1L, 0);
 }
 #endif
