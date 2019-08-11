@@ -95,9 +95,6 @@ void __interrupt(low_priority) lowPriorityInterrupts(void) {
 void main(void) {
     Event* event;
 
-    RCONbits.BOR = 1;
-    RCONbits.POR = 1;
-
     initializeHardware();
     resetCapture();
         
